@@ -2,7 +2,7 @@
        :doc "The core API for the Google App Engine datastore service." }
   appengine.datastore.core
   (:import (com.google.appengine.api.datastore
-            DatastoreConfig DatastoreServiceFactory 
+            DatastoreServiceFactory DatastoreServiceConfig
             Entity Key Query KeyFactory Transaction))
   (:use appengine.utils [clojure.contrib.def :only (defvar)]))
 
@@ -18,7 +18,7 @@ Examples:
 
   (datastore)
   ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"
-  ([] (datastore DatastoreConfig/DEFAULT))
+  ([] (datastore (com.google.appengine.api.datastore.DatastoreServiceConfig$Builder/withDefaults)))
   ([configuration] (DatastoreServiceFactory/getDatastoreService configuration)))
 
 (defn create-key
