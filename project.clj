@@ -4,8 +4,9 @@
   :url "http://github.com/r0man/appengine-clj"
   :autodoc {:name "App Engine"
             :copyright "Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi"}
-  :dependencies [[org.clojure/clojure "1.1.0"]
-                 [inflections "0.3"]]
+  :dependencies [[org.clojure/clojure "1.2.0-master-SNAPSHOT"]
+                 [org.clojure/clojure-contrib "1.2.0-SNAPSHOT"]
+                 [inflections "0.4"]]
   :dev-dependencies [[autodoc "0.7.0"]
                      [lein-clojars "0.5.0"]
                      [leiningen/lein-swank "1.1.0"]
