@@ -14,7 +14,7 @@ The [Autodoc](http://tomfaulhaber.github.com/autodoc) API documentation can be f
 ### Install
 
 [Leiningen](http://github.com/technomancy/leiningen) usage:
-    [appengine "0.2"]
+    [appengine "0.3-SNAPSHOT"]
 
 ### appengine.datastore.core
 

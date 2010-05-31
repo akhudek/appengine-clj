@@ -15,3 +15,15 @@
   (is (= (map-keyword {'a 1 'b 2}) {:a 1 :b 2}))
   (is (= (map-keyword {:a 1 :b 2}) {:a 1 :b 2})))
 
+(deftest test-keyword->string
+  (are [arg expected]
+    (is (= (keyword->string arg) expected))
+    "iso-3166-alpha-2" "iso-3166-alpha-2"
+    :iso-3166-alpha-2 "iso-3166-alpha-2"))
+
+(deftest test-stringify
+  (are [arg expected]
+    (is (= (stringify arg) expected))
+    "iso-3166-alpha-2" "iso-3166-alpha-2"
+    'iso-3166-alpha-2 "iso-3166-alpha-2"
+    :iso-3166-alpha-2 "iso-3166-alpha-2"))
