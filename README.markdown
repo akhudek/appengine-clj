@@ -62,6 +62,36 @@ Examples:
     {:name Spain, :iso-3166-alpha-2 es, :kind country, :key #&lt;Key continent("eu")/country("es")&gt;}
     {:code SP58, :name Galicia, :kind region, :key #&lt;Key continent("eu")/country("es")/region("SP58")&gt;}
 
+Entities also support automatic preprocessing and postprocessing for
+complex data types and strings over 500 characters. Long strings are
+converted to datastore Text objects. Complex properties are 
+serialized to strings and also stored as Text objects. In the below
+example, authors is serialized and stored as a Text object and abstract
+is stored as a text object. 
+
+Example:
+
+	(defentity citation ()
+  	(authors :complex true)
+  	(abstract :text true)
+  	(journal)
+  	(year)
+  	(pages))
+
+	(with-local-datastore 
+		(let [cit (create-citation 
+								 {:abstract "A very very long string."
+								  :authors [{:last-name "Smith" :first-name "John"}
+								            {:last-name "Wong" :first-name "Xu"}]
+								  :journal "Journal of Generic Names"
+								  :year 2010
+								  :pages "100-200"})]
+			(println cit )))
+		
+	; this prints:
+	{:pages 100-200, :year 2010, :authors [{:last-name Smith, :first-name John} {:last-name Wong, :first-name Xu}], :abstract A very very long string., :journal Journal of Generic Names, :kind citation, :key #<Key citation(1)>}
+		
+
 ### appengine.datastore.transactions
 
 Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html)).
