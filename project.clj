@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.2.0-master-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.2.0-SNAPSHOT"]
                  [inflections "0.4-SNAPSHOT"]]
-  :dev-dependencies [[autodoc "0.7.0"]
+  :dev-dependencies [;[autodoc "0.7.1"]
                      [lein-clojars "0.5.0"]
                      [com.google.appengine/appengine-api-1.0-sdk "1.3.4"]
                      [com.google.appengine/appengine-api-labs "1.3.4"]
