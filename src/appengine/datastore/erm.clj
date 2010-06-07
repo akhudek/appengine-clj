@@ -69,74 +69,72 @@
       ~pre-fn
       ~post-fn)))
 
-(defentity citation [] [pmid abstract volume issue year month pages journal journal-abbrev authors]
-  :abstract {:transform text-tr :default ""}
-  :authors {:transform serialize-tr})
-
-	;;  Examples:
-	; user=> (entity citation)
-	; {:pmid nil,
-	;  :abstract "",
-	;  :volume nil,
-	;  :issue nil,
-	;  :year nil,
-	;  :month nil,
-	;  :pages nil,
-	;  :journal nil,
-	;  :journal-abbrev nil,
-	;  :authors nil}
-	; user=> entry
-	; {:abstract "Lorum ipsum...",
-	;  :authors ["Joe" "Jim" "Bob"],
-	;  :title "A title",
-	;  :year 2010}
-	; user=> (entity citation entry)
-	; {:pmid nil,
-	;  :abstract "Lorum ipsum...",
-	;  :volume nil,
-	;  :issue nil,
-	;  :year 2010,
-	;  :month nil,
-	;  :pages nil,
-	;  :journal nil,
-	;  :journal-abbrev nil,
-	;  :authors ["Joe" "Jim" "Bob"],
-	;  :title "A title"}
-	; user=> (preprocess (entity citation entry))
-	; {:pmid nil,
-	; 	 :abstract #<Text <Text: Lorum ipsum...>>,
-	; 	 :volume nil,
-	; 	 :issue nil,
-	; 	 :year 2010,
-	; 	 :month nil,
-	; 	 :pages nil,
-	; 	 :journal nil,
-	; 	 :journal-abbrev nil,
-	; 	 :authors "[\"Joe\" \"Jim\" \"Bob\"]",
-	; 	 :title "A title"}
-	; user=> (postprocess (preprocess (entity citation entry)))
-	; 	{:pmid nil,
-	; 	 :abstract "Lorum ipsum...",
-	; 	 :volume nil,
-	; 	 :issue nil,
-	; 	 :year 2010,
-	; 	 :month nil,
-	; 	 :pages nil,
-	; 	 :journal nil,
-	; 	 :journal-abbrev nil,
-	; 	 :authors ["Joe" "Jim" "Bob"],
-	; 	 :title "A title"}
+;;  Examples:
+; user=> (defentity citation [] [pmid abstract volume issue year month pages journal journal-abbrev authors]
+;   :abstract {:transform text-tr :default ""}
+;   :authors {:transform serialize-tr})
+; user=> (entity citation)
+; {:pmid nil,
+;  :abstract "",
+;  :volume nil,
+;  :issue nil,
+;  :year nil,
+;  :month nil,
+;  :pages nil,
+;  :journal nil,
+;  :journal-abbrev nil,
+;  :authors nil}
+; user=> entry
+; {:abstract "Lorum ipsum...",
+;  :authors ["Joe" "Jim" "Bob"],
+;  :title "A title",
+;  :year 2010}
+; user=> (entity citation entry)
+; {:pmid nil,
+;  :abstract "Lorum ipsum...",
+;  :volume nil,
+;  :issue nil,
+;  :year 2010,
+;  :month nil,
+;  :pages nil,
+;  :journal nil,
+;  :journal-abbrev nil,
+;  :authors ["Joe" "Jim" "Bob"],
+;  :title "A title"}
+; user=> (preprocess (entity citation entry))
+; {:pmid nil,
+; 	 :abstract #<Text <Text: Lorum ipsum...>>,
+; 	 :volume nil,
+; 	 :issue nil,
+; 	 :year 2010,
+; 	 :month nil,
+; 	 :pages nil,
+; 	 :journal nil,
+; 	 :journal-abbrev nil,
+; 	 :authors "[\"Joe\" \"Jim\" \"Bob\"]",
+; 	 :title "A title"}
+; user=> (postprocess (preprocess (entity citation entry)))
+; 	{:pmid nil,
+; 	 :abstract "Lorum ipsum...",
+; 	 :volume nil,
+; 	 :issue nil,
+; 	 :year 2010,
+; 	 :month nil,
+; 	 :pages nil,
+; 	 :journal nil,
+; 	 :journal-abbrev nil,
+; 	 :authors ["Joe" "Jim" "Bob"],
+; 	 :title "A title"}
 	
-	;;  Planned for relationships:
-	; 	(defentity citation [] [...])
-	; 	(defentity author [] [...])
-	; 	(defrel many-to-many citation author)
-	; 	(selectrel citations my-author where (= :title "On queries"))
-	; 	(select-cursor citation filter-by (= :title "On queries") sort-by :year :month :day limit 20)
-	; 
-	; 	(defentity blog [] [...])
-	; 	(defentity post [] [...])
-	; 	(defrel many-to-one post blog)
-	; 	(selectrel posts my-blog where (= :tag "sql") limit 40)
-	; 
-	; 	
+;;  Planned for relationships:
+; 	(defentity citation [] [...])
+; 	(defentity author [] [...])
+; 	(defrel many-to-many citation author)
+; 	(selectrel citations my-author where (= :title "On queries"))
+; 	(select-cursor citation filter-by (= :title "On queries") sort-by :year :month :day limit 20)
+; 
+; 	(defentity blog [] [...])
+; 	(defentity post [] [...])
+; 	(defrel many-to-one post blog)
+; 	(selectrel posts my-blog where (= :tag "sql") limit 40)
+; 
