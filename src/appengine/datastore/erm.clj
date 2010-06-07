@@ -51,21 +51,39 @@
   ; Post-retrieve
   (fn [data] (deserialize data)))
 
-(defn entity-option-map [my-keyword option-map]
+(defn- entity-option-map [my-keyword option-map]
   (let [filtered-opts (filter #(contains? (second %) my-keyword) option-map)]
     (zipmap (keys option-map) (map my-keyword (vals option-map)))))
+
+;; Core merge-with does not work with records as the first object.
+;; The reason is that records do not support (my-map :key) access.
+(defn rc-merge-with
+  "Returns a map that consists of the rest of the maps conj-ed onto
+  the first.  If a key occurs in more than one map, the mapping(s)
+  from the latter (left-to-right) will be combined with the mapping in
+  the result by calling (f val-in-result val-in-latter)."
+  [f & maps]
+  (when (some identity maps)
+    (let [merge-entry (fn [m e]
+			(let [k (key e) v (val e)]
+			  (if (contains? m k)
+			    (assoc m k (f (k m) v))
+			    (assoc m k v))))
+          merge2 (fn [m1 m2]
+		   (reduce merge-entry (or m1 {}) (seq m2)))]
+      (reduce merge2 maps))))
 
 (defmacro defentity [entity [parent] attributes & options]
   (let [opt-map        (apply hash-map options)
         transform-map  (entity-option-map :transform opt-map)
         default-map    (entity-option-map :default opt-map)
-        factory-fn     `(create-entity [this# vals-map#] (merge this# (merge ~default-map vals-map#)))
-        pre-fn         `(preprocess [this#] (record ~entity (merge-with (fn [t# v#] ((:pre t#) v#)) ~transform-map this#)))
-        post-fn        `(postprocess [this#] (record ~entity (merge-with (fn [t# v#] ((:post t#) v#)) ~transform-map this#)))]
+        factory-fn     `(appengine.datastore.erm/create-entity [this# vals-map#] (merge this# (merge ~default-map vals-map#)))
+        pre-fn         `(appengine.datastore.erm/preprocess [this#] (appengine.datastore.erm/rc-merge-with (fn [v# t#] ((:pre t#) v#)) this# ~transform-map))
+        post-fn        `(appengine.datastore.erm/postprocess [this#] (appengine.datastore.erm/rc-merge-with (fn [v# t#] ((:post t#) v#)) this# ~transform-map))]
     `(defrecord ~entity [~@attributes]
-      create-entity-protocol
+      appengine.datastore.erm/create-entity-protocol
       ~factory-fn
-      process-entity-protocol
+      appengine.datastore.erm/process-entity-protocol
       ~pre-fn
       ~post-fn)))
 
