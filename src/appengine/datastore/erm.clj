@@ -3,13 +3,35 @@
   (:import (com.google.appengine.api.datastore 
 	    EntityNotFoundException Query Query$FilterOperator Text))
   (:require [appengine.datastore.core :as ds])
+  (:import (com.google.appengine.api.datastore
+            DatastoreServiceFactory DatastoreServiceConfig
+            Entity Key Query KeyFactory Transaction))
   (:use [clojure.contrib.string :only (join)]
         [clojure.contrib.seq :only (includes?)]
         appengine.utils	inflections))
 
-
 (defn serialize [object] (binding [*print-dup* true] (pr-str object)))
 (defn deserialize [data] (with-in-str data (read)))
+
+(defn entity-obj->map
+  "Converts a com.google.appengine.api.datastore.Entity instance to a
+entity record (if it exists). The properties of the entity are stored
+under their keyword names, the entity kind under :kind and the entity
+key under :key.
+
+Examples:
+
+   (entity->map (doto (Entity. \"continent\") (.setProperty \"name\" \"Europe\")))
+   ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}"
+  [entity]
+  (let [kind               (.getKind entity)
+        entity-record-name (ns-resolve *ns* (symbol kind))
+        con                (first (.getDeclaredConstructors entity-record-name))
+        num                (alength (.getParameterTypes con))
+        entity-record      (.newInstance con (make-array Object num))]
+    (reduce #(assoc %1 (keyword (key %2)) (val %2))
+      (merge entity-record {:kind kind :key (.getKey entity)})
+      (.entrySet (.getProperties entity)))))
 
 (defmacro empty-record
   "Dynamic factory for defrecords."
@@ -18,11 +40,9 @@
            num# (alength (.getParameterTypes con#))]
       (.newInstance con# (make-array Object num#))))
 
-
-(defmacro entity 
+(defmacro entity
   ([name] `(entity ~name {}))
-  ([name vals-map]
-    `(create-entity (empty-record ~name) ~vals-map)))
+  ([name vals-map] `(assoc (create-entity (empty-record ~name) ~vals-map) :kind ~(str name))))
 
 (defprotocol create-entity-protocol
   "Factory for creatiting entities with defaults."
@@ -37,7 +57,6 @@
 
 (defmacro deftransform [name pre-commit post-retrieve]
   `(def ~name (property-transform. ~pre-commit ~post-retrieve)))
-
 
 (deftransform text-tr
   ; Pre-commit
@@ -77,13 +96,13 @@
   (let [opt-map        (apply hash-map options)
         transform-map  (entity-option-map :transform opt-map)
         default-map    (entity-option-map :default opt-map)
-        factory-fn     `(appengine.datastore.erm/create-entity [this# vals-map#] (merge this# (merge ~default-map vals-map#)))
-        pre-fn         `(appengine.datastore.erm/preprocess [this#] (appengine.datastore.erm/rc-merge-with (fn [v# t#] ((:pre t#) v#)) this# ~transform-map))
-        post-fn        `(appengine.datastore.erm/postprocess [this#] (appengine.datastore.erm/rc-merge-with (fn [v# t#] ((:post t#) v#)) this# ~transform-map))]
-    `(defrecord ~entity [~@attributes]
-      appengine.datastore.erm/create-entity-protocol
+        factory-fn     `(create-entity [this# vals-map#] (merge this# (merge ~default-map vals-map#)))
+        pre-fn         `(preprocess [this#] (rc-merge-with (fn [v# t#] ((:pre t#) v#)) this# ~transform-map))
+        post-fn        `(postprocess [this#] (rc-merge-with (fn [v# t#] ((:post t#) v#)) this# ~transform-map))]
+    `(defrecord ~entity [~'kind ~'key ~@attributes]
+      create-entity-protocol
       ~factory-fn
-      appengine.datastore.erm/process-entity-protocol
+      process-entity-protocol
       ~pre-fn
       ~post-fn)))
 
